@@ -12,6 +12,7 @@ def monitorar_carregamento():
     bateria = random.randint(25,70)
     try:
         while bateria < 100:
+
             bateria = bateriaSimulada(percent=bateria, secsleft=-1, power_plugged=True)
 
             if bateria is None:
