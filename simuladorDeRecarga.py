@@ -1,36 +1,60 @@
 import random
 import time
-import os
 from collections import namedtuple
+import math as math
 
-from sympy.physics.units import percent
+multiplicadorDeVelocidade = 100
 
-bateriaSimulada = namedtuple('bateria', 'percent power_plugged secsleft')
+capacidadeBateria = range(40,100, 5)
+escolhaCapacidadeBateria = random.choice(capacidadeBateria)
 
+potenciaCarregador = [7.4, 11, 22, 50, 200]
+escolhaPotenciaCarregador = random.choice(potenciaCarregador)
+
+bateria = random.randint(25, 70)
+bateriaSimulada = namedtuple('Bateria', ['percent', 'power_plugged', 'secsleft'])
+
+energiaNecessaria = escolhaCapacidadeBateria * (100 - bateria) / 100
+tempoNecessario = (energiaNecessaria / escolhaPotenciaCarregador) * 3600
+tempoNecessario /= multiplicadorDeVelocidade
+math.trunc(tempoNecessario)
 
 def monitorar_carregamento():
-    bateria = random.randint(25,70)
+    bateriaAgora = bateria
+
+    dadosBateria = bateriaSimulada(percent=bateriaAgora, secsleft=tempoNecessario, power_plugged=True)
+
+    tempoRestante = dadosBateria.secsleft
     try:
-        while bateria < 100:
-            bateria = bateriaSimulada(percent=bateria, secsleft=-1, power_plugged=True)
+        while bateriaAgora < 101:
 
             if bateria is None:
                 print("Bateria não detectada")
                 break
 
-            os.system('cls' if os.name == 'nt' else 'clear')
-
             print("--- Monitor de Bateria ---")
-            print(f"Porcentagem: {percent}%")
-            print(f"Tomada: {'Sim' if bateria.power_plugged else 'Não'}")
-            print(f"Tempo restante: {bateria.secsleft}")
+            print("Porcentagem: ", format(bateriaAgora),"%")
+            print(f"Tomada: {'Sim' if bateriaSimulada.power_plugged else 'Não'}")
+            print(f"Tempo restante: {tempoRestante}")
             print("\n(Pressione Ctrl+C para encerrar)")
 
-            bateria+=1
+            energiaPorSegundo = (escolhaPotenciaCarregador/3600)*multiplicadorDeVelocidade
+            bateriaAgora += (energiaPorSegundo / escolhaCapacidadeBateria) * 100
+
+            if bateriaAgora > bateria:
+                tempoRestante -= 1
+
             time.sleep(1)
     except KeyboardInterrupt:
-        print("\nMonitoramento encerrado")
+        print("\nRecarga encerrada antes do tempo estipulado!")
+
+    print("Recarga completa!")
+
+    print(f"Resumo da sessão de recarga: \nQuantidade carregada: {100-bateria}% \nTempo de carregamento: {dadosBateria.secsleft} segundos")
 
 if __name__ == "__main__":
     monitorar_carregamento()
+
+
+
 
