@@ -2,6 +2,10 @@ import random
 import time
 from collections import namedtuple
 import math as math
+import sistemaCobranca
+from sistemaCobranca import SistemaCobranca
+
+cobranca= SistemaCobranca()
 
 multiplicadorDeVelocidade = 100
 
@@ -20,6 +24,7 @@ tempoNecessario /= multiplicadorDeVelocidade
 math.trunc(tempoNecessario)
 
 def monitorar_carregamento():
+    cobranca.__init__()
     bateriaAgora = bateria
 
     dadosBateria = bateriaSimulada(percent=bateriaAgora, secsleft=tempoNecessario, power_plugged=True)
@@ -45,12 +50,15 @@ def monitorar_carregamento():
                 tempoRestante -= 1
 
             time.sleep(1)
+        cobranca.calcularValorSessao(energiaNecessaria)
     except KeyboardInterrupt:
         print("\nRecarga encerrada antes do tempo estipulado!")
 
     print("Recarga completa!")
 
-    print(f"Resumo da sessão de recarga: \nQuantidade carregada: {100-bateria}% \nTempo de carregamento: {dadosBateria.secsleft} segundos")
+    print(f"Resumo da sessão de recarga: \nQuantidade carregada: {100-bateria}% \nTempo de carregamento: {dadosBateria.secsleft:.2f} segundos")
+    fatura = cobranca.gerarFatura("João", energiaNecessaria)
+    print(fatura)
 
 if __name__ == "__main__":
     monitorar_carregamento()
