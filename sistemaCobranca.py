@@ -1,5 +1,4 @@
 import random
-import math
 
 
 class SistemaCobranca:
@@ -13,9 +12,9 @@ class SistemaCobranca:
         self.historico.append(custo)
         return custo
 
-    def gerarFatura(self, nomeCliente: str, energiaNecessaria: float):
+    def gerarFatura(self, modeloCarro: str, nomeCliente: str, energiaNecessaria: float):
         custo = self.calcularValorSessao(energiaNecessaria)
-        return  f"Fatura de {nomeCliente}: {energiaNecessaria} kWh = R$ {custo:.2f}"
+        return  f"Fatura do {modeloCarro} de {nomeCliente}: {energiaNecessaria:.2f} kWh = R$ {custo:.2f}"
 
     def gerarHistorico(self):
         return sum(self.historico)

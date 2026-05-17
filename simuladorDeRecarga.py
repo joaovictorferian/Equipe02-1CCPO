@@ -2,63 +2,53 @@ import random
 import time
 from collections import namedtuple
 import math as math
-import sistemaCobranca
 from sistemaCobranca import SistemaCobranca
+from equacoesRecarga import equacoesRecarga
 
-cobranca= SistemaCobranca()
+nomeCliente = input("Digite o seu nome: ")
+modeloCarro = input("Qual é o seu carro: ")
 
-multiplicadorDeVelocidade = 100
-
-capacidadeBateria = range(40,100, 5)
-escolhaCapacidadeBateria = random.choice(capacidadeBateria)
-
-potenciaCarregador = [7.4, 11, 22, 50, 200]
-escolhaPotenciaCarregador = random.choice(potenciaCarregador)
-
-bateria = random.randint(25, 70)
 bateriaSimulada = namedtuple('Bateria', ['percent', 'power_plugged', 'secsleft'])
-
-energiaNecessaria = escolhaCapacidadeBateria * (100 - bateria) / 100
-tempoNecessario = (energiaNecessaria / escolhaPotenciaCarregador) * 3600
-tempoNecessario /= multiplicadorDeVelocidade
-math.trunc(tempoNecessario)
+sessao = equacoesRecarga()
+cobranca = SistemaCobranca()
 
 def monitorar_carregamento():
-    cobranca.__init__()
-    bateriaAgora = bateria
+    sessao.iniciarEquacoes()
+    bateriaAgora = sessao.bateria
+    tempoNecessario = sessao.tempo
 
     dadosBateria = bateriaSimulada(percent=bateriaAgora, secsleft=tempoNecessario, power_plugged=True)
-
-    tempoRestante = dadosBateria.secsleft
     try:
+        statusCarregamento = True
         while bateriaAgora < 101:
 
-            if bateria is None:
+            if sessao.bateria is None:
                 print("Bateria não detectada")
                 break
 
             print("--- Monitor de Bateria ---")
-            print("Porcentagem: ", format(bateriaAgora),"%")
-            print(f"Tomada: {'Sim' if bateriaSimulada.power_plugged else 'Não'}")
-            print(f"Tempo restante: {tempoRestante}")
-            print("\n(Pressione Ctrl+C para encerrar)")
+            print(f"Porcentagem: {bateriaAgora:.2f}%")
+            print(f"Tomada: {'Sim' if dadosBateria.power_plugged else 'Não'}")
+            print(f"Tempo restante: {tempoNecessario:.0f} segundos")
 
-            energiaPorSegundo = (escolhaPotenciaCarregador/3600)*multiplicadorDeVelocidade
-            bateriaAgora += (energiaPorSegundo / escolhaCapacidadeBateria) * 100
-
-            if bateriaAgora > bateria:
-                tempoRestante -= 1
+            energiaPorSegundo = (sessao.potencia/3600)*sessao.multiplicadorVelocidade
+            bateriaAgora += (energiaPorSegundo / sessao.capacidade)*100
+            energiaRestante = (100 - bateriaAgora) * sessao.capacidade / 100
+            tempoRestante = (energiaRestante / energiaPorSegundo)
+            tempoNecessario = tempoRestante
 
             time.sleep(1)
-        cobranca.calcularValorSessao(energiaNecessaria)
     except KeyboardInterrupt:
         print("\nRecarga encerrada antes do tempo estipulado!")
+        statusCarregamento = False
 
-    print("Recarga completa!")
 
-    print(f"Resumo da sessão de recarga: \nQuantidade carregada: {100-bateria}% \nTempo de carregamento: {dadosBateria.secsleft:.2f} segundos")
-    fatura = cobranca.gerarFatura("João", energiaNecessaria)
-    print(fatura)
+    if statusCarregamento:
+        print("Recarga completa!")
+
+        print(f"Resumo da sessão de recarga: \nQuantidade carregada: {100-sessao.bateria}% \nTempo de carregamento: {sessao.tempo:.2f} segundos")
+        fatura = cobranca.gerarFatura(modeloCarro, nomeCliente, sessao.energia)
+        print(fatura)
 
 if __name__ == "__main__":
     monitorar_carregamento()
