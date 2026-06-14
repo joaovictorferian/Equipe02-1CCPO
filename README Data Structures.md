@@ -36,7 +36,7 @@ Não há dependências externas — apenas bibliotecas padrão do Python.
 ### Gerenciamento de múltiplas sessões
 - Suporta até 10 veículos simultâneos
 - Cada carro tem bateria, capacidade e potência sorteadas aleatoriamente
-- Sessões são removidas automaticamente ao atingir 100%
+- Veículos são removidos da sessão automaticamente ao atingir 100%
 
 ### Tipos de recarga
 
